@@ -122,7 +122,8 @@ class _SearchLocationState extends State<SearchLocation> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              searchResult!['city_name'] as String,
+                              searchResult!['city_name'] as String ,
+                              softWrap: true,
                               style: const TextStyle(
                                   color: Colors.black,
                                   fontSize: 20,

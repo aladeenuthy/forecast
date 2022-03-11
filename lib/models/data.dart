@@ -1,5 +1,3 @@
-import 'package:intl/intl.dart';
-
 class Weather {
   final int dateTime;
   final int temp;

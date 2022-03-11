@@ -1,19 +1,24 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:forecast/utils/services.dart';
 import 'package:forecast/models/data.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class WeatherProvider with ChangeNotifier {
   bool _useFarenheit = false;
   Weather? _currentWeather;
-  String? _location;
+  Map<String, double>? _location;
+  String? _address;
   List<Weather> _hourlyWeather = [];
   List<Weather> _dailyWeather = [];
 
   bool get useFarenheit {
     return _useFarenheit;
+  }
+
+  String get address {
+    return _address ?? "";
   }
 
   List<Weather> get hourlyWeather {
@@ -24,16 +29,18 @@ class WeatherProvider with ChangeNotifier {
     return [..._dailyWeather];
   }
 
-  String get location {
-    return _location as String;
+  Map<String, double> get location {
+    return _location ?? {};
   }
 
   Weather get currentWeather {
     return _currentWeather as Weather;
   }
 
-  void toggleTemp(bool value) {
+  void toggleTemp(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
     _useFarenheit = value;
+    prefs.setBool('useFarenheit', _useFarenheit);
     notifyListeners();
   }
 
@@ -61,42 +68,83 @@ class WeatherProvider with ChangeNotifier {
           description: weather['weather'][0]['main'],
           icon: weather['weather'][0]['icon']);
     }).toList();
-    return processedDailyData.sublist(2);
+    return processedDailyData.sublist(1);
   }
 
-  Future<void> test() async {
-    final locationData = await getLocation();
-    print(locationData!['lat']);
-    print(locationData['long']);
-    final url =
-        "https://api.openweathermap.org/data/2.5/onecall?lat=${locationData['lat']}&lon=${locationData['long']}&units=metric&exclude=minutely&appid=96865d91a8bef41af266096216d0052d";
-    final response = await Dio().get(url);
-    print(response.data);
+  Future<void> setStoredData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final Map<String, dynamic> currentData =
+        json.decode(prefs.getString('currentWeather') ?? "");
+    _currentWeather = Weather(
+        dateTime: currentData['dateTime'],
+        temp: currentData['temp'],
+        description: currentData['description'],
+        icon: currentData['icon']);
+    _useFarenheit = prefs.getBool('useFarenheit') ?? false;
+    _address = prefs.getString('address');
   }
 
   Future<void> fetchWeather() async {
     final locationData = await getLocation();
-    if (locationData == null) {
+    if (locationData == null ) {
       return;
     }
-    final url =
-        "https://api.openweathermap.org/data/2.5/onecall?lat=${locationData['lat']}&lon=${locationData['long']}&units=metric&exclude=minutely&appid=96865d91a8bef41af266096216d0052d";
-    final response = await Dio().get(url);
-    Map<String, dynamic> responseData = response.data;
-    Map<String, dynamic> responseCurrent = responseData['current'];
-    double temp = responseCurrent['temp'];
-    _currentWeather = Weather(
-        dateTime: responseCurrent['dt'],
-        temp: temp.round(),
-        description: responseCurrent['weather'][0]['main'],
-        icon: responseCurrent['weather'][0]['icon']);
-    List responseHourly = responseData['hourly'];
-    List responseDaily = responseData['daily'];
-    _hourlyWeather = _transformHourly(responseHourly.sublist(0, 24));
-    _dailyWeather = _transformDaily(responseDaily);
+    final prefs = await SharedPreferences.getInstance();
+    // store latitude and  longitude
+    _location = locationData;
+
+    _useFarenheit = prefs.getBool('useFarenheit') ?? false;
+    final isConnected = await isConnectedToInternet();
+    if (!isConnected) {
+      await setStoredData();
+      throw Exception();
+    }
+    try {
+      // open weather one call  api
+      final url =
+          "https://api.openweathermap.org/data/2.5/onecall?lat=${locationData['lat'].toString()}&lon=${locationData['long'].toString()}&units=metric&exclude=minutely&appid=96865d91a8bef41af266096216d0052d";
+
+      final response = await Dio().get(url);
+      // get address from latitude and longitude
+      _address = await getAddress(
+          locationData['lat'].toString(), locationData['long'].toString());
+
+      // Filter api response
+      Map<String, dynamic> responseData = response.data;
+      Map<String, dynamic> responseCurrent = responseData['current'];
+      double temp = responseCurrent['temp'];
+      // store current weather
+      _currentWeather = Weather(
+          dateTime: responseCurrent['dt'],
+          temp: temp.round(),
+          description: responseCurrent['weather'][0]['main'],
+          icon: responseCurrent['weather'][0]['icon']);
+      // storing data in phone storage incase there's no internet connection
+      prefs.setString(
+          'currentWeather',
+          json.encode({
+            'dateTime': _currentWeather!.dateTime,
+            'temp': _currentWeather!.temp,
+            'description': _currentWeather!.description,
+            'icon': _currentWeather!.icon
+          }));
+      prefs.setString('address', _address as String);
+      prefs.setBool('useFarenheit', useFarenheit);
+
+      List responseHourly = responseData['hourly'];
+      List responseDaily = responseData['daily'];
+
+      // store hourly  and daily weather
+      _hourlyWeather = _transformHourly(responseHourly.sublist(0, 24));
+      _dailyWeather = _transformDaily(responseDaily);
+    } catch (error) {
+      await setStoredData();
+      throw Exception();
+    }
   }
 
   Future<Map<String, String>?> searchCity(String query) async {
+    // query city
     final url =
         "https://api.openweathermap.org/data/2.5/find?q=$query&units=metric&appid=96865d91a8bef41af266096216d0052d";
     try {

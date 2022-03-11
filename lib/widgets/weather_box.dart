@@ -15,8 +15,8 @@ class WeatherBox extends StatefulWidget {
 class _WeatherBoxState extends State<WeatherBox> {
   @override
   Widget build(BuildContext context) {
-    final currentWeather =
-        Provider.of<WeatherProvider>(context, listen: false).currentWeather;
+  final weatherProv =
+        Provider.of<WeatherProvider>(context, listen: false);
     return Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
       Consumer<WeatherProvider>(builder: (context, weatherProv, _) {
         return Row(
@@ -44,7 +44,7 @@ class _WeatherBoxState extends State<WeatherBox> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CachedNetworkImage(
-              imageUrl: currentWeather.iconUrl,
+              imageUrl: weatherProv.currentWeather.iconUrl,
               width: 50,
               fit: BoxFit.cover,
             ),
@@ -55,7 +55,7 @@ class _WeatherBoxState extends State<WeatherBox> {
                   "Today",
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
-                Text(DateFormat('EEE d/M/y').format(currentWeather.dateTimeObj))
+                Text(DateFormat('EEE d/M/y').format(weatherProv.currentWeather.dateTimeObj))
               ],
             )
           ],
@@ -68,7 +68,7 @@ class _WeatherBoxState extends State<WeatherBox> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-              weatherProv.useFarenheit ? currentWeather.tempF: currentWeather.temp.toString(),
+              weatherProv.useFarenheit ? weatherProv.currentWeather.tempF: weatherProv.currentWeather.temp.toString(),
                 style: const TextStyle(
                   fontSize: 120,
                 ),
@@ -85,7 +85,7 @@ class _WeatherBoxState extends State<WeatherBox> {
         }
       ),
       Text(
-          "Abuja, Ng, ${DateFormat('h:mm a').format(currentWeather.dateTimeObj)}",
+          weatherProv.address + ", " + DateFormat('h:mm a').format(weatherProv.currentWeather.dateTimeObj),
           style: const TextStyle(fontSize: 16))
     ]);
   }
