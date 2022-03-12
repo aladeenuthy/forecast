@@ -39,27 +39,25 @@ class _WeatherBoxState extends State<WeatherBox> {
           ],
         );
       }),
-      Expanded(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CachedNetworkImage(
-              imageUrl: weatherProv.currentWeather.iconUrl,
-              width: 50,
-              fit: BoxFit.cover,
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "Today",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                Text(DateFormat('EEE d/M/y').format(weatherProv.currentWeather.dateTimeObj))
-              ],
-            )
-          ],
-        ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CachedNetworkImage(
+            imageUrl: weatherProv.currentWeather.iconUrl,
+            width: 50,
+            fit: BoxFit.cover,
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Today",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              Text(DateFormat('EEE d/M/y').format(weatherProv.currentWeather.dateTimeObj))
+            ],
+          )
+        ],
       ),
       Consumer<WeatherProvider>(
         builder: (context, weatherProv, _) {

@@ -92,7 +92,7 @@ class _SearchLocationState extends State<SearchLocation> {
                   ),
                   if (searchResult != null)
                     Container(
-                      height: 90,
+                      height: 110,
                       padding: const EdgeInsets.symmetric(
                           vertical: 15, horizontal: 20),
                       decoration: BoxDecoration(

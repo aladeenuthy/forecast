@@ -99,7 +99,7 @@ class _ForecastReportState extends State<ForecastReport> {
               },
               child: Container(
                 padding: const EdgeInsets.only(left: 15, top: 10, bottom: 10),
-                constraints: const BoxConstraints(maxWidth: 155),
+                constraints: const BoxConstraints(maxWidth: 170),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
                   color: shaderPrimaryColor,
@@ -109,9 +109,7 @@ class _ForecastReportState extends State<ForecastReport> {
                     "Forecast report",
                     style: TextStyle(color: primaryColor),
                   ),
-                  SizedBox(
-                    width: 4,
-                  ),
+                
                   Icon(Icons.keyboard_arrow_down, color: primaryColor)
                 ]),
               ),
