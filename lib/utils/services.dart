@@ -18,12 +18,12 @@ Future<Map<String, double>?> getLocation() async {
 }
 
 String generateLocationPreviewImage(double? latitude, double? longitude) {
-  return 'https://maps.googleapis.com/maps/api/staticmap?center=&$latitude,$longitude&zoom=16&size=600x300&maptype=roadmap&markers=color:red%7Clabel:A%7C$latitude,$longitude&key=AIzaSyCk8mxRi4Z3zAcuvOhJQlwk4ZjBe98y3w';
+  return 'https://maps.googleapis.com/maps/api/staticmap?center=&$latitude,$longitude&zoom=16&size=600x300&maptype=roadmap&markers=color:red%7Clabel:A%7C$latitude,$longitude&key=AIzaSyCk8mxRi4Z3zAcuvOhJQlwk4ZjBe98y3wk';
 }
 
 Future<String> getAddress(String lat, String long) async {
   final addressResponse = await Dio().get(
-      'https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$long&key=AIzaSyCk8mxRi4Z3zAcuvOhJQlwk4ZjBe98y3w');
+      'https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$long&key=AIzaSyCk8mxRi4Z3zAcuvOhJQlwk4ZjBe98y3wk');
   Map<String, dynamic> addressResponseData = addressResponse.data;
   final address = addressResponseData['results'][1]['address_components'][1]
           ['short_name'] +

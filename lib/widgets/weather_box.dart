@@ -68,7 +68,7 @@ class _WeatherBoxState extends State<WeatherBox> {
               Text(
               weatherProv.useFarenheit ? weatherProv.currentWeather.tempF: weatherProv.currentWeather.temp.toString(),
                 style: const TextStyle(
-                  fontSize: 120,
+                  fontSize: 110,
                 ),
               ),
               Padding(

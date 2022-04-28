@@ -30,6 +30,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Forecast',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
           textTheme: ThemeData.light()
               .textTheme
