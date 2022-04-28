@@ -71,7 +71,7 @@ class WeatherProvider with ChangeNotifier {
     return processedDailyData.sublist(1);
   }
 
-  Future<void> setStoredData() async {
+  Future<void> getStoredData() async {
     final prefs = await SharedPreferences.getInstance();
     final Map<String, dynamic> currentData =
         json.decode(prefs.getString('currentWeather') ?? "");
@@ -96,7 +96,7 @@ class WeatherProvider with ChangeNotifier {
     _useFarenheit = prefs.getBool('useFarenheit') ?? false;
     final isConnected = await isConnectedToInternet();
     if (!isConnected) {
-      await setStoredData();
+      await getStoredData();
       throw Exception();
     }
     try {
@@ -138,7 +138,7 @@ class WeatherProvider with ChangeNotifier {
       _hourlyWeather = _transformHourly(responseHourly.sublist(0, 24));
       _dailyWeather = _transformDaily(responseDaily);
     } catch (error) {
-      await setStoredData();
+      await getStoredData();
       throw Exception();
     }
   }
